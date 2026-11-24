@@ -1,0 +1,256 @@
+# ============================================================================
+#  Admin panel (Decap CMS) — what the shop owner can edit at /admin
+# ============================================================================
+#
+# DEMO / SANDBOX: the "test-repo" backend runs fully in the browser.
+# Anyone can open /admin and try it; changes are NOT saved anywhere.
+backend:
+  name: test-repo
+
+# ---------------------------------------------------------------------------
+# CLIENT SITE: replace the backend block above with the config.yml that the
+# DecapBridge dashboard generates (decapbridge.com → Add site). Use its exact
+# values — the block below is only an example of the shape:
+#
+# backend:
+#   name: git-gateway
+#   repo: CLIENT-GITHUB/REPO-NAME
+#   branch: main
+#   identity_url: https://auth.decapbridge.com/sites/YOUR-SITE-ID
+#   gateway_url: https://gateway.decapbridge.com
+#
+# The owner then logs in with email + password (no GitHub account needed).
+# See README.md → "Deploy for a new client".
+# ---------------------------------------------------------------------------
+
+site_url: /
+logo:
+  src: ../favicon.svg
+locale: en
+media_folder: public/images/uploads
+public_folder: /images/uploads
+editor:
+  preview: false
+
+collections:
+  - name: content
+    label: Website
+    description: Edit the content of each page. Click "Publish" when you're done — the site updates in about a minute.
+    files:
+      # ---------------------------------------------------------------- SETTINGS
+      - name: settings
+        label: "Shop info, hours & booking"
+        file: src/data/settings.json
+        fields:
+          - { name: name, label: Short name, widget: string, hint: "Used in the logo, e.g. Hone & Harbor" }
+          - { name: full_name, label: Full business name, widget: string }
+          - { name: tagline, label: Tagline, widget: string }
+          - { name: established, label: Year established, widget: string, required: false }
+          - { name: logo, label: Logo image (optional), widget: image, required: false, hint: "Leave empty to use the text logo. PNG or SVG with a transparent background works best." }
+          - { name: phone, label: Phone, widget: string }
+          - { name: email, label: Email, widget: string }
+          - name: address
+            label: Address
+            widget: object
+            fields:
+              - { name: street, label: Street, widget: string }
+              - { name: city, label: City, widget: string }
+              - { name: region, label: State, widget: string }
+              - { name: zip, label: ZIP, widget: string }
+              - { name: map_query, label: Map search text, widget: string, hint: "What Google Maps should search for — usually your business name and address." }
+              - { name: parking, label: Parking info, widget: string, required: false }
+          - { name: timezone, label: Time zone, widget: select, options: [America/New_York, America/Chicago, America/Denver, America/Phoenix, America/Los_Angeles, America/Anchorage, Pacific/Honolulu, Europe/London, Australia/Sydney] }
+          - name: hours
+            label: Opening hours
+            widget: list
+            allow_add: false
+            summary: "{{fields.day}}: {{fields.open}}–{{fields.close}}"
+            fields:
+              - { name: day, label: Day, widget: string }
+              - { name: closed, label: Closed all day, widget: boolean, default: false }
+              - { name: open, label: "Opens (24h, e.g. 09:00)", widget: string, required: false }
+              - { name: close, label: "Closes (24h, e.g. 19:00)", widget: string, required: false }
+          - { name: walk_ins, label: Walk-in note, widget: string, required: false }
+          - name: booking
+            label: Online booking
+            widget: object
+            fields:
+              - name: mode
+                label: How booking works
+                widget: select
+                options:
+                  - { label: "Open my booking page (Booksy, Square, Fresha, Vagaro…)", value: link }
+                  - { label: "Show the booking widget inside my site", value: embed }
+                  - { label: "Demo booking (sandbox only)", value: demo }
+              - { name: url, label: Booking link, widget: string, required: false, hint: "In Booksy / Square / Fresha open Share and copy your booking link" }
+              - { name: provider, label: Booking system name, widget: string, required: false }
+              - { name: button_text, label: Button text, widget: string, default: Book now }
+          - name: rating
+            label: Review rating badge
+            widget: object
+            fields:
+              - { name: score, label: "Average rating (e.g. 4.9)", widget: string, required: false }
+              - { name: count, label: "Number of reviews (e.g. 640+)", widget: string, required: false }
+              - { name: source, label: "Where (e.g. Google)", widget: string, required: false }
+          - name: social
+            label: Social links
+            widget: object
+            fields:
+              - { name: instagram, label: Instagram URL, widget: string, required: false }
+              - { name: facebook, label: Facebook URL, widget: string, required: false }
+              - { name: tiktok, label: TikTok URL, widget: string, required: false }
+              - { name: google, label: Google reviews URL, widget: string, required: false }
+          - name: announcement
+            label: Top announcement bar
+            widget: object
+            fields:
+              - { name: enabled, label: Show the bar, widget: boolean, default: false }
+              - { name: text, label: Text, widget: string, required: false }
+              - { name: link, label: "Link (optional, e.g. /services/)", widget: string, required: false }
+          - { name: contact_form_endpoint, label: Contact form endpoint, widget: string, required: false, hint: "Formspree / Web3Forms URL. Set up by your developer." }
+          - { name: contact_image, label: Contact page photo, widget: image }
+          - name: seo
+            label: Google & social sharing
+            widget: object
+            fields:
+              - { name: description, label: Site description (shown in Google), widget: text }
+              - { name: og_image, label: Sharing image, widget: image }
+          - { name: demo_notice, label: Show "demo project" note in footer, widget: boolean, default: false }
+
+      # ---------------------------------------------------------------- HOME
+      - name: home
+        label: "Home page"
+        file: src/data/home.json
+        fields:
+          - name: hero
+            label: Top section
+            widget: object
+            fields:
+              - { name: eyebrow, label: Small text above the title, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: title_accent, label: Title — second line (italic), widget: string }
+              - { name: text, label: Intro text, widget: text }
+              - { name: image, label: Main photo, widget: image }
+          - { name: marquee, label: Running text strip, widget: list, hint: "Comma-separated words" }
+          - name: features
+            label: Why choose us (3 points)
+            widget: list
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Text, widget: text }
+          - name: stats
+            label: Numbers
+            widget: list
+            fields:
+              - { name: value, label: Number, widget: string }
+              - { name: label, label: Label, widget: string }
+          - name: cta
+            label: Bottom booking banner
+            widget: object
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Text, widget: text }
+              - { name: image, label: Background photo, widget: image, required: false }
+
+      # ---------------------------------------------------------------- SERVICES
+      - name: services
+        label: "Services & prices"
+        file: src/data/services.json
+        fields:
+          - name: categories
+            label: Price list
+            widget: list
+            collapsed: false
+            summary: "{{fields.name}}"
+            fields:
+              - { name: name, label: Category name, widget: string }
+              - name: items
+                label: Services
+                widget: list
+                summary: "{{fields.name}} — ${{fields.price}} · {{fields.duration}}"
+                fields:
+                  - { name: name, label: Service, widget: string }
+                  - { name: price, label: "Price ($, numbers only)", widget: string }
+                  - { name: duration, label: "Duration (e.g. 45 min)", widget: string }
+                  - { name: description, label: Short description, widget: text, required: false }
+                  - { name: featured, label: "Popular — show on the home page", widget: boolean, default: false }
+          - { name: intro, label: Intro text, widget: text }
+          - { name: policies, label: "Good to know (one rule per line)", widget: list, field: { name: rule, label: Rule, widget: string } }
+          - { name: hero_image, label: Page photo, widget: image }
+
+      # ---------------------------------------------------------------- BARBERS
+      - name: barbers
+        label: "Barbers"
+        file: src/data/barbers.json
+        fields:
+          - { name: hero_image, label: Page photo, widget: image }
+          - { name: intro, label: Intro text, widget: text }
+          - name: barbers
+            label: Team
+            widget: list
+            summary: "{{fields.name}} — {{fields.role}}"
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: role, label: Role, widget: string }
+              - { name: photo, label: Photo, widget: image }
+              - { name: photo_position, label: "Photo focus (e.g. 50% 30%)", widget: string, required: false, hint: "Move the crop: first number = left/right, second = up/down" }
+              - { name: years, label: Years of experience, widget: string, required: false }
+              - { name: specialties, label: Specialties, widget: list, hint: "Comma-separated" }
+              - { name: bio, label: Short bio, widget: text }
+              - { name: instagram, label: Instagram URL, widget: string, required: false }
+              - { name: booking_url, label: Personal booking link, widget: string, required: false, hint: "Optional. If empty, the shop booking link is used." }
+
+      # ---------------------------------------------------------------- GALLERY
+      - name: gallery
+        label: "Gallery"
+        file: src/data/gallery.json
+        fields:
+          - { name: hero_image, label: Page photo, widget: image }
+          - { name: intro, label: Intro text, widget: string }
+          - { name: categories, label: Filter buttons, widget: list, hint: "Comma-separated, e.g. Fades, Beards, Classic" }
+          - name: images
+            label: Photos
+            widget: list
+            summary: "{{fields.category}} — {{fields.alt}}"
+            fields:
+              - { name: image, label: Photo, widget: image }
+              - { name: alt, label: Short description (for Google & screen readers), widget: string }
+              - { name: category, label: Category (must match a filter button), widget: string }
+
+      # ---------------------------------------------------------------- REVIEWS
+      - name: reviews
+        label: "Reviews"
+        file: src/data/reviews.json
+        fields:
+          - name: reviews
+            label: Reviews
+            widget: list
+            summary: "{{fields.name}} — {{fields.rating}}/5"
+            fields:
+              - { name: name, label: Client name, widget: string }
+              - { name: text, label: Review, widget: text }
+              - { name: rating, label: Stars, widget: number, value_type: int, min: 1, max: 5, default: 5 }
+              - { name: source, label: "Source (Google, Yelp…)", widget: string, default: Google }
+
+      # ---------------------------------------------------------------- ABOUT
+      - name: about
+        label: "About & FAQ"
+        file: src/data/about.json
+        fields:
+          - { name: title, label: Page title, widget: string }
+          - { name: story, label: Our story, widget: text, hint: "Leave an empty line between paragraphs" }
+          - { name: image, label: Top photo, widget: image }
+          - { name: image_2, label: Story photo, widget: image }
+          - name: values
+            label: Values
+            widget: list
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Text, widget: text }
+          - name: faq
+            label: FAQ
+            widget: list
+            summary: "{{fields.q}}"
+            fields:
+              - { name: q, label: Question, widget: string }
+              - { name: a, label: Answer, widget: text }
